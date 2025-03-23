@@ -94,3 +94,4 @@ if __name__ == "__main__":
     trainer.train()
     eval_results = trainer.evaluate()
     print("Evaluation results:", eval_results)
+    model.save_pretrained("./model_checkpoint")
