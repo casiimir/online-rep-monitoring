@@ -1,4 +1,4 @@
-name: Build and push Docker image
+name: Build and push Docker images
 
 on:
   push:
@@ -12,10 +12,10 @@ jobs:
 
     permissions:
       contents: read
-      packages: write  # <-- IMPORTANTE per push su GHCR
+      packages: write
 
     steps:
-      - name: Check out the repository
+      - name: Checkout repository
         uses: actions/checkout@v3
 
       - name: Set up Docker Buildx
@@ -36,15 +36,22 @@ jobs:
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Build and push Docker image
+      - name: Build and push training image
         uses: docker/build-push-action@v4
         with:
           context: .
+          file: Dockerfile.train
           push: true
-          tags: ghcr.io/casiimir/online-rep-monitoring:latest
+          tags: ghcr.io/casiimir/online-rep-monitoring-train:latest
           cache-from: type=local,src=/tmp/.buildx-cache
           cache-to: type=local,dest=/tmp/.buildx-cache
 
-      - name: Run tests inside Docker container
-        run: |
-          docker run --rm ghcr.io/casiimir/online-rep-monitoring:latest
+      - name: Build and push inference image
+        uses: docker/build-push-action@v4
+        with:
+          context: .
+          file: Dockerfile.inference
+          push: true
+          tags: ghcr.io/casiimir/online-rep-monitoring-inference:latest
+          cache-from: type=local,src=/tmp/.buildx-cache
+          cache-to: type=local,dest=/tmp/.buildx-cache
